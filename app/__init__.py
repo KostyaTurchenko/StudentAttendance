@@ -8,6 +8,10 @@ from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_admin import Admin
 
+from flask_bcrypt import Bcrypt
+
+from flask_login import LoginManager
+
 app = Flask(__name__)
 base_dir = os.path.abspath(os.path.dirname(__file__))
 
@@ -17,6 +21,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+bcrypt = Bcrypt()
+
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+login_manager.login_message_category = 'info'
 
 CORS(app)
 
