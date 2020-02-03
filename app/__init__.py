@@ -9,6 +9,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin import Admin
 
 from flask_bcrypt import Bcrypt
+from flask_marshmallow import  Marshmallow
 
 from flask_login import LoginManager
 
@@ -20,6 +21,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(base_dir, 'a
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+marshmallow = Marshmallow(app)
 migrate = Migrate(app, db)
 bcrypt = Bcrypt()
 

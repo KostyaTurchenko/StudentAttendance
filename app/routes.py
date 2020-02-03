@@ -1,16 +1,18 @@
-from app import app
+
 from app import app, controller
-from flask import request, render_template, redirect, flash, url_for
+from app.serialization_schema import *
+from flask import jsonify, request, render_template, redirect, flash, url_for
 from app.forms import LoginForm
 from app.models import *
 from app import bcrypt
 from flask_security import login_user, current_user, logout_user, login_required
 
 
-@app.route('/')
-@app.route('/main.html')
-def main_page():
-    return "Hi my freands!"
+@app.route('/test')
+def start_page():
+    #maybe add some data in database
+    pharmacies = controller.get_pharmacies()
+    return render_template("table.html")
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -26,3 +28,11 @@ def login():
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('login.html', title='Login', form=form)
+
+
+@app.route('/students')
+def get_students():
+    students = Student.query.all()
+    schema = StudentSchema(many=True)
+    output = schema.dump(students)
+    return jsonify({'student': output})
