@@ -1,0 +1,3 @@
+D:\Programing\StudentsAttendanceGit\obj\Debug\StudentsAttendanceGit.pyproj.CoreCompileInputs.cache
+D:\Programing\StudentsAttendanceGit\bin\Microsoft.PythonTools.WebRole.dll
+D:\Programing\StudentsAttendanceGit\bin\wfastcgi.py
