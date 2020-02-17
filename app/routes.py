@@ -1,6 +1,7 @@
 
 from app import app, controller
 import json
+from functools import wraps
 from app.serialization_schema import *
 from flask import jsonify, request, render_template, redirect, flash, url_for
 from app.forms import LoginForm
@@ -26,8 +27,41 @@ from flask_login import login_user, current_user, logout_user, login_required
 #             flash('Login Unsuccessful. Please check email and password', 'danger')
 #     return render_template('login.html', title='Login', form=form)
 
+def token_required(f):
+    @wraps(f)
+    def _verify(*args, **kwargs):
+        auth_headers = request.headers.get('Authorization', '').split()
+
+        invalid_msg = {
+            'message': 'Invalid token. Registeration and / or authentication required',
+            'authenticated': False
+        }
+        expired_msg = {
+            'message': 'Expired token. Reauthentication required.',
+            'authenticated': False
+        }
+
+        if len(auth_headers) != 2:
+            return jsonify(invalid_msg), 401
+
+        try:
+            token = auth_headers[1]
+            data = jwt.decode(token, app.config['SECRET_KEY'])
+            user = Teacher.query.filter_by(login=data['sub']).first()
+            if not user:
+                raise RuntimeError('User not found')
+            return f(user, *args, **kwargs)
+        except jwt.ExpiredSignatureError:
+            return jsonify(expired_msg), 401 # 401 is Unauthorized HTTP status code
+        except (jwt.InvalidTokenError, Exception) as e:
+            print(e)
+            return jsonify(invalid_msg), 401
+
+    return _verify
+
 
 @app.route('/students')
+@token_required
 def get_students():
     students = Student.query.all()
     schema = StudentSchema(many=True)
