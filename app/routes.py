@@ -6,6 +6,8 @@ from flask import jsonify, request, render_template, redirect, flash, url_for
 from app.forms import LoginForm
 from app.models import *
 from app import bcrypt
+from datetime import datetime, timedelta
+import jwt
 from flask_login import login_user, current_user, logout_user, login_required
 
 
@@ -39,7 +41,13 @@ def login():
         post_data = request.get_json()
         teacher = Teacher.query.filter_by(login=post_data.get('login')).first()
         if teacher and bcrypt.check_password_hash((teacher.password, post_data.get('password'))):
+            token = jwt.encode({
+                'sub': Teacher.login,
+                'iat': datetime.utcnow(),
+                'exp': datetime.utcnow() + timedelta(minutes=30)},
+                app.config['SECRET_KEY'])
             response_object = {'status': 'success',
+                               'token': token.decode('utf-8'),
                                'name': teacher.name,
                                'surname': teacher.surname,
                                'group_id': teacher.group_id,
