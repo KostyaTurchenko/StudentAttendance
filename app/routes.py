@@ -76,7 +76,7 @@ def login():
         teacher = Teacher.query.filter_by(login=post_data.get('login')).first()
         if teacher and bcrypt.check_password_hash((teacher.password, post_data.get('password'))):
             token = jwt.encode({
-                'sub': Teacher.login,
+                'sub': teacher.login,
                 'iat': datetime.utcnow(),
                 'exp': datetime.utcnow() + timedelta(minutes=30)},
                 app.config['SECRET_KEY'])
@@ -90,5 +90,5 @@ def login():
             return response_object
         else:
             response_object = {'status': 'error'}
-            return response_object
+            return jsonify(response_object)
 
