@@ -1,7 +1,9 @@
 <template>
   <div id="app">
       <navbar />
-    <router-view/>
+      <b-card class="body">
+          <router-view/>
+      </b-card>
   </div>
 </template>
 
@@ -24,19 +26,16 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
+  background: url('./assets/oriental-tiles.png');
   color: #2c3e50;
+  min-height: 100vh;
 }
 
-#nav {
-  padding: 30px;
+#app .body {
+    margin: 1vh auto 0 auto;
+    width: 1024px;
 }
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
 
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
+
 </style>

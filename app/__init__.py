@@ -13,7 +13,9 @@ from flask_marshmallow import  Marshmallow
 
 from flask_login import LoginManager
 
-app = Flask(__name__)
+app = Flask(__name__,
+            static_folder = "../dist/static",
+            template_folder = "../dist")
 base_dir = os.path.abspath(os.path.dirname(__file__))
 
 app.config['SECRET_KEY'] = 'topsecret'
