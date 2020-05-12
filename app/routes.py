@@ -66,10 +66,12 @@ def token_required(f):
 def catch_all(path):
     return render_template("index.html")
 
+
 @app.route('/static/<path:path>')
 def static_dist(path):
     # тут пробрасываем статику
     return send_from_directory("/dist", path)
+
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -86,18 +88,16 @@ def login():
                                'token': token.decode('utf-8'),
                                'name': teacher.name,
                                'surname': teacher.surname,
-                               'group_id': teacher.group_id,
-                               'subjects': teacher.subjects
             }
-            return response_object
+            return jsonify(response_object)
         else:
             response_object = {'status': 'error'}
             return jsonify(response_object)
 
 # TODO: Возвращать структуру как response_object
 @app.route('/courses')
-@token_required
-def get_courses(user):
+#@token_required
+def get_courses():
     response_object = {
         'courses': [
             {
@@ -186,21 +186,39 @@ students_list = [
     }
 ]
 
-# TODO: Возвращать список студентов в соответствии запросу
-@app.route("/students", methods=['POST'])
-@token_required
-def get_students(user):
+
+# приходит json в таком виде: { 'course': 1 }
+@app.route("/groups", methods=['POST'])
+#@token_required
+def get_groups():
     post_data = request.get_json()
-    print(post_data.get('course').get('id'))
+    groups = controller.get_groups(post_data['course'])
+    schema = GroupSchema(many=True)
+    view_groups = schema.dump(groups)
+    response_object = {
+        'groups': view_groups
+    }
+    return jsonify(response_object)
+
+
+# TODO: Возвращать список студентов в соответствии запросу
+# приходит json в таком виде: { 'group_id': 1 }
+@app.route("/students", methods=['POST'])
+#@token_required
+def get_students():
+    post_data = request.get_json()
+    #print(post_data.get('course').get('id'))
     # post_data.course.id - id курса
     # post_data.group.id - id группы
     # post_data.subject.id - id предмета
 
-    #students = Student.query.all()
-    #schema = StudentSchema(many=True)
-    #output = schema.dump(students)
+    # json групп на входе будет отличаться от того что выше(курс -
+    # это поле объекта group
+    students = controller.get_students_by_group(post_data['group_id']) # 1 - Это для дебуга
+    schema = StudentSchema(many=True)
+    view_students = schema.dump(students)
     response_object = {
-        'students': students_list
+        'students': view_students
     }
     return jsonify(response_object)
 
