@@ -223,33 +223,67 @@ def get_students():
     return jsonify(response_object)
 
 
-# TODO: добавление пропуска (Если у каждого дня есть свой id, то следует отпралять этот ид)
-@app.route("/absenteeism/add", methods=['POST'])
-@token_required
-def add_absenteeism(user):
+@app.route("/subjects", methods=['GET'])
+#@token_required
+def get_subjects():
+    subjects = controller.get_subjects()
+    schema = SubjectSchema(many=True)
+    view_subjects = schema.dump(subjects)
+    response_object = {
+        'subjects': view_subjects
+    }
+    return jsonify(response_object)
+
+
+@app.route("/absenteeism/all", methods=['POST'])
+#@token_required
+def get_absenteeism_for_group():
     post_data = request.get_json()
 
-    stud_id = post_data.get('studentId')
-    date = post_data.get('date')
-    pDate = datetime.strptime(date, '%d-%m-%Y')
+    subject_id = post_data['subjectId']
+    group_id = post_data['groupId']
 
-    print(date)
-    print(pDate)
-    #Приходит объект с ид студента, датой, предметом
-    #Если всё хорошо, возвращаем True
-    return jsonify({ 'status': True, 'date': pDate })
+    dates = controller.get_absent_dates(group_id, subject_id)
+    schema = AbsentSchema(many=True)
+    view_dates = schema.dump(dates)
+    response_object = {
+        'dates': view_dates
+    }
+    return jsonify(response_object)
+
+
+# TODO: добавление пропуска (Если у каждого дня есть свой id, то следует отпралять этот ид)
+@app.route("/absenteeism/add", methods=['POST'])
+#@token_required
+def add_absenteeism():
+    post_data = request.get_json()
+
+    subject_id = post_data['subjectId']
+    group_id = post_data['groupId']
+    stud_id = post_data['studentId']
+    date = post_data['date']
+    p_date = datetime.strptime(date, '%d-%m-%Y')
+
+    d = controller.add_absent_date(group_id, subject_id, stud_id, p_date)
+
+    schema = AbsentSchema(many=False)
+    view_absent = schema.dump(d)
+
+    response_object = {
+        'status': True,
+        'date': view_absent
+
+    }
+    return jsonify(response_object)
+
 
 # TODO: удаление пропуска
 @app.route("/absenteeism/remove", methods=['POST'])
-@token_required
-def remove_absenteeism(user):
+#@token_required
+def remove_absenteeism():
     post_data = request.get_json()
 
-    stud_id = post_data.get('studentId')
-    date = post_data.get('date')
-    pDate = datetime.strptime(date, '%d-%m-%Y')
+    absent_id = post_data['absentId']
+    controller.delete_absent_date(absent_id)
 
-    print(pDate)
-    #Приходит объект с ид студента, датой, предметом
-    #Если всё хорошо, возвращаем True
-    return jsonify({ 'status': True })
+    return jsonify({ 'status': True})

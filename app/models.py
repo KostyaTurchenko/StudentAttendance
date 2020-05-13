@@ -30,7 +30,7 @@ class Subject(db.Model):
     name = db.Column(db.String)
 
     def __repr__(self):
-        return "student {} {}".format(self.name)
+        return "<subject {}>".format(self.name)
 
 
 class Group(db.Model):
@@ -40,7 +40,7 @@ class Group(db.Model):
     students = db.relationship('Student', backref='group', lazy=True)
 
     def __repr__(self):
-        return "<course {} group {}".format(self.course, self.number)
+        return "<course {} group {}>".format(self.course, self.number)
 
 
 class Absent(db.Model):
