@@ -2,13 +2,9 @@ from app.models import *
 import calendar
 
 
-def db_commit(data):
+def add_item(data):
     db.session.add(data)
     db.session.commit()
-
-
-def get_students():
-    return Student.query.all()
 
 
 def get_groups(course):
@@ -19,7 +15,27 @@ def get_students_by_group(group_id):
     return Student.query.filter_by(group_id=group_id).all()
 
 
+def get_subjects():
+    return Subject.query.all()
+
+
+def get_absent_dates(group_id, subject_id):
+    return Absent.query.filter_by(group_id=group_id, subject_id=subject_id).all()
+
+
+def add_absent_date(group_id, subject_id, student_id, date):
+    new_a = Absent(group_id=group_id, subject_id=subject_id, student_id=student_id, date=date)
+    add_item(new_a)
+    return new_a
+
+
+def delete_absent_date(id):
+    Absent.query.filter_by(id=id).delete()
+    db.session.commit()
+
+
 def add_student(first_name, last_name):
     new_stud = Student(firtsname=first_name, lastname=last_name)
-    new_stud.bd_commit(new_stud)
+    add_item(new_stud)
+
 
