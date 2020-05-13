@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { authenticate, getStudents, getCourses, setToken, addAbsenteeism, removeAbsenteeism } from '../api/index.js'
+import { authenticate, getGroups,         getStudents, /*getCourses,*/ setToken, addAbsenteeism, removeAbsenteeism } from '../api/index.js'
 import router from '../router/index.js'
 import moment from 'moment'
 Vue.use(Vuex)
@@ -150,7 +150,14 @@ export default new Vuex.Store({
         jwt: {
             token: localStorage.getItem('token'),
         },
-        courses: [],
+        courses: {
+            1: [],
+            2: [],
+            3: [],
+            4: [],
+            5: [],
+            6: [],
+        },
         students: [],
         title: '',
     },
@@ -199,8 +206,18 @@ export default new Vuex.Store({
                 state.errorMessage = "";
             }, 10000)
         },
-        setCourses(state, data) {
-            state.courses = data.courses;
+        setGroups(state, data) {
+            console.log(data);
+            state.courses[data.course] = data.groups.map((group) => {
+                return {
+                    text: group.number,
+                    value: group.id,
+                }
+            });
+            //if (!data.groups.length)
+                state.courses[data.course].push({ text: 'Нет групп!', value: -1 })
+
+            console.log(state.courses);
         },
         setStudents(state, data) {
             state.students = data.students;
@@ -219,6 +236,17 @@ export default new Vuex.Store({
                 context.commit('setErrorMessage', err);
             });
       },
+      getGroups(context, course) {
+          return getGroups(course)
+            .then(res => {
+                context.commit('setGroups', { course: course.course, groups: res.data.groups });
+            })
+            .catch(err => {
+                context.commit('setErrorMessage', err);
+            });
+      },
+
+
       getStudents(context, groupData) {
           if (debug) {
               context.commit('setStudents', res.data);
@@ -234,7 +262,7 @@ export default new Vuex.Store({
                 context.commit('setErrorMessage', err);
             });
       },
-      getCourses(context) {
+      /*getCourses(context) {
           if (debug) {
               context.commit('setCourses', res.data);
               return;
@@ -246,7 +274,7 @@ export default new Vuex.Store({
             .catch(err => {
                 context.commit('setErrorMessage', err);
             })
-      },
+      },*/
       addAbsenteeism(context, abs) {
           let student = context.state.students.find((stud) => stud.id == abs.studentId)
           let isExists = false;

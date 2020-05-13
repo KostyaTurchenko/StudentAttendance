@@ -5,7 +5,8 @@
                 <b-navbar-nav>
                     <b-nav-item href="/">Home</b-nav-item>
                     <b-nav-item href="/authorization" :disabled='isAuthenticated'>Login</b-nav-item>
-                    <b-nav-item href="/performance" :disabled='!isAuthenticated'>Успеваемость</b-nav-item>
+                    <!--<b-nav-item href="/performance" :disabled='!isAuthenticated'>Успеваемость</b-nav-item>-->
+                    <b-nav-item href="/attendance" :disabled='!isAuthenticated'>Посещаемость</b-nav-item>
                 </b-navbar-nav>
 
                 <b-navbar-nav class="ml-auto">

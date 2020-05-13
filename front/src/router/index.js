@@ -17,10 +17,22 @@ const routes = [
             }
         }
     },
-    {
+    /*{
         path: '/performance',
         name: 'AcademicPerformance',
         component: () => import('../components/AcademicPerformance.vue'),
+        beforeEnter (to, from, next) {
+            if (!store.getters.isAuthenticated) {
+                next('/authorization')
+            } else {
+                next()
+            }
+        }
+    },*/
+    {
+        path: '/attendance',
+        name: 'Attendance',
+        component: () => import('../components/Attendance.vue'),
         beforeEnter (to, from, next) {
             if (!store.getters.isAuthenticated) {
                 next('/authorization')
