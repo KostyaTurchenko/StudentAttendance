@@ -1,143 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { authenticate, getGroups,         getStudents, /*getCourses,*/ setToken, addAbsenteeism, removeAbsenteeism } from '../api/index.js'
+import { authenticate, getGroups, getSubjects, getStudents, setToken, getAllAbsenteeism, addAbsenteeism, removeAbsenteeism } from '../api/index.js'
 import router from '../router/index.js'
-import moment from 'moment'
+//import moment from 'moment'
 Vue.use(Vuex)
-
-var res = {
-    data: {
-        courses: [
-            {
-                id: 324,
-                order: 1,
-                groups: [
-                    {
-                        id: 456,
-                        name: '1.1',
-                        subjects: [
-                            {
-                                id: 3,
-                                name: 'История'
-                            },
-                            {
-                                id: 4,
-                                name: 'Мат.Ан'
-                            },
-                            {
-                                id: 5,
-                                name: 'Информатика'
-                            }
-                        ],
-                    },
-                    {
-                        id: 457,
-                        name: '1.2',
-                        subjects: [
-                            {
-                                id: 3,
-                                name: 'История'
-                            },
-                            {
-                                id: 4,
-                                name: 'Мат.Ан'
-                            },
-                            {
-                                id: 5,
-                                name: 'Информатика'
-                            }
-                        ],
-                    },
-                    {
-                        id: 458,
-                        name: '2',
-                        subjects: [
-                            {
-                                id: 3,
-                                name: 'История'
-                            },
-                            {
-                                id: 4,
-                                name: 'Мат.Ан'
-                            },
-                            {
-                                id: 5,
-                                name: 'Информатика'
-                            }
-                        ],
-                    }
-                ],
-            },
-            {
-                id: 325,
-                order: 2,
-                groups: [
-                    {
-                        id: 459,
-                        name: '1.1',
-                        subjects: [
-                            {
-                                id: 13,
-                                name: 'Экономика'
-                            },
-                            {
-                                id: 9,
-                                name: 'ОС'
-                            },
-                            {
-                                id: 14,
-                                name: 'АиСД'
-                            }
-                        ],
-                    },
-                    {
-                        id: 460,
-                        name: '1.1_it',
-                        subjects: [
-                            {
-                                id: 13,
-                                name: 'Экономика'
-                            },
-                            {
-                                id: 9,
-                                name: 'ОС'
-                            },
-                            {
-                                id: 15,
-                                name: 'Комп.Графика'
-                            }
-                        ],
-                    }
-                ]
-            },
-        ],
-        students: [
-            {
-                id: 2134,
-                name: "Alex Red",
-                dates: [
-                    moment('2018-04-10'),
-                    moment('2018-02-13'),
-                    moment('2018-03-07'),
-                ]
-            },
-            {
-                id: 2234,
-                name: "Dominic Raider",
-                dates: [
-
-                ]
-            },
-            {
-                id: 2243,
-                name: "John Lenon",
-                dates: [
-
-                ],
-            },
-        ],
-    }
-}
 
 var debug = false;
 export default new Vuex.Store({
@@ -159,6 +25,8 @@ export default new Vuex.Store({
             6: [],
         },
         students: [],
+        subjects: [],
+        dates: [],
         title: '',
     },
     getters: {
@@ -207,21 +75,54 @@ export default new Vuex.Store({
             }, 10000)
         },
         setGroups(state, data) {
-            console.log(data);
             state.courses[data.course] = data.groups.map((group) => {
                 return {
                     text: group.number,
                     value: group.id,
                 }
             });
-            //if (!data.groups.length)
+            if (!data.groups.length)
                 state.courses[data.course].push({ text: 'Нет групп!', value: -1 })
+        },
+        setSubjects(state, data) {
+            state.subjects = data.map((subject) => {
+                return {
+                    value: subject.id,
+                    text: subject.name,
+                }
+            })
+        },
+        setStudents(state, students) {
+            state.students = students;
+        },
+        setDates(state, dates) {
+            state.dates = dates;
+            /*for (let i = 1; i < 30; i++)
+                state.dates.push({
+                    date: "2020-04-"+i,
+                    group_id: 1,
+                    student_id: 4,
+                    subject_id: 1,
+                    id: 3,
+                })*/
+        },
+        addDay(state, day) {
+            state.dates.push({
+                date: day,
+            })
+        },
+        addAbsenteeism(state, date) {
+            state.dates.push(date);
+        },
+        removeAbsenteeism(state, absId) {
+            let fined = state.dates.find(date => {
+                return date.id == absId
+            });
+            fined.student_id = -1;
+            /*let index = state.dates.indexOf(fined);
+            state.dates.splice(index, 1);*/
+        },
 
-            console.log(state.courses);
-        },
-        setStudents(state, data) {
-            state.students = data.students;
-        },
         setTitle(state, data) {
             state.title = data;
         }
@@ -236,6 +137,15 @@ export default new Vuex.Store({
                 context.commit('setErrorMessage', err);
             });
       },
+      getSubjects(context) {
+          return getSubjects()
+            .then(res => {
+                context.commit('setSubjects', res.data.subjects)
+            })
+            .catch(err => {
+                context.commit('setErrorMessage', err);
+            })
+      },
       getGroups(context, course) {
           return getGroups(course)
             .then(res => {
@@ -245,58 +155,30 @@ export default new Vuex.Store({
                 context.commit('setErrorMessage', err);
             });
       },
-
-
-      getStudents(context, groupData) {
-          if (debug) {
-              context.commit('setStudents', res.data);
-              return;
-          }
-
-          context.commit('setTitle', groupData);
-          return getStudents(groupData)
+      getStudents(context, groupId) {
+          return getStudents({ group_id: groupId })
             .then(res => {
-                context.commit('setStudents', res.data);
+                context.commit('setStudents', res.data.students);
             })
             .catch(err => {
                 context.commit('setErrorMessage', err);
             });
       },
-      /*getCourses(context) {
-          if (debug) {
-              context.commit('setCourses', res.data);
-              return;
-          }
-          getCourses()
+      getAllAbsenteeism(context, data) {
+          return getAllAbsenteeism(data)
             .then(res => {
-                context.commit('setCourses', res.data);
+                context.commit('setDates', res.data.dates);
             })
             .catch(err => {
                 context.commit('setErrorMessage', err);
-            })
-      },*/
+            });
+      },
+
       addAbsenteeism(context, abs) {
-          let student = context.state.students.find((stud) => stud.id == abs.studentId)
-          let isExists = false;
-          if (student) {
-              student.dates.find(date => {
-                  date = moment(date).format('DD-MM-YYYY');
-                  if (date == abs.date) {
-                      context.commit('setErrorMessage', 'Студент уже имеет пропуск в заданный день');
-                      isExists = true;
-                  }
-              });
-          }
-
-          if (isExists) return;
-
           return addAbsenteeism(abs)
             .then(res => {
                 if (res.data.status) {
-                    //let student = context.state.students.find((stud) => stud.id == abs.studentId)
-                    if (student) {
-                        student.dates.push(res.data.date)
-                    }
+                    context.commit('addAbsenteeism', res.data.date)
                 }
                 //context.commit('setStudents', res.data);
             })
@@ -308,17 +190,7 @@ export default new Vuex.Store({
           return removeAbsenteeism(abs)
             .then(res => {
                 if (res.data.status) {
-                    let student = context.state.students.find((stud) => stud.id == abs.studentId)
-                    if (student) {
-                        let findDate = null;
-                        student.dates.find(date => {
-                            console.log(abs.date, moment(date).format('DD-MM-YYYY'));
-                            if (abs.date == moment(date).format('DD-MM-YYYY'))
-                                findDate = date;
-                        });
-                        if (findDate)
-                            student.dates.splice(student.dates.indexOf(findDate), 1);
-                    }
+                    context.commit('removeAbsenteeism', abs.absentId)
                 }
             })
             .catch(err => {
