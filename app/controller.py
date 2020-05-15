@@ -1,5 +1,4 @@
 from app.models import *
-import calendar
 
 
 def add_item(data):

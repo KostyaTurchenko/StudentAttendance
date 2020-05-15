@@ -35,6 +35,6 @@ CORS(app)
 
 from app import routes, models
 
-admin = Admin(app, 'App', url='/', index_view=AdminIndexView(name='home'))
+admin = Admin(app, 'App', url='/admin', index_view=AdminIndexView(name='home'))
 admin.add_view(ModelView(models.Student, db.session))
 admin.add_view(ModelView(models.Group, db.session))
