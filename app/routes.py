@@ -1,32 +1,13 @@
-
 from app import app, controller
-import json
 from functools import wraps
 from app.serialization_schema import *
-from flask import jsonify, request, render_template, redirect, flash, url_for, send_from_directory
-from app.forms import LoginForm
+from flask import jsonify, request, render_template, send_from_directory
 from app.models import *
 from app import bcrypt
-from datetime import datetime, timedelta
+from datetime import timedelta
 import jwt
-from flask_login import login_user, current_user, logout_user, login_required
-from datetime import datetime, date, time
+from datetime import datetime
 
-
-# @app.route("/login", methods=['GET', 'POST'])
-# def login():
-#     if current_user.is_authenticated:
-#         return redirect(url_for('home'))
-#     form = LoginForm()
-#     if form.validate_on_submit():
-#         user = Teacher.query.filter_by(email=form.email.data).first()
-#         if user and bcrypt.check_password_hash(user.password, form.password.data):
-#             login_user(user, remember=form.remember.data)
-#             next_page = request.args.get('next')
-#             return redirect(next_page) if next_page else redirect(url_for('home'))
-#         else:
-#             flash('Login Unsuccessful. Please check email and password', 'danger')
-#     return render_template('login.html', title='Login', form=form)
 
 def token_required(f):
     @wraps(f)
@@ -94,103 +75,11 @@ def login():
             response_object = {'status': 'error'}
             return jsonify(response_object)
 
-# TODO: Возвращать структуру как response_object
-@app.route('/courses')
-#@token_required
-def get_courses():
-    response_object = {
-        'courses': [
-            {
-                'id': 321,
-                'order': 1,
-                'groups': [
-                    {
-                        'id': 323,
-                        'name': '1.2F',
-                        'subjects': [
-                            {
-                                'id': 12,
-                                'name': 'OC'
-                            },
-                            {
-                                'id': 13,
-                                'name': 'IT'
-                            }
-                        ]
-                    },
-                    {
-                        'id': 324,
-                        'name': '1.1F',
-                        'subjects': [
-                            {
-                                'id': 12,
-                                'name': 'OC'
-                            },
-                            {
-                                'id': 14,
-                                'name': 'TI'
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                'id': 322,
-                'order': 2,
-                'groups': [
-                    {
-                        'id': 325,
-                        'name': '1.1E',
-                        'subjects': [
-                            {
-                                'id': 16,
-                                'name': 'Информатика'
-                            },
-                            {
-                                'id': 13,
-                                'name': 'IT'
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
-
-    return jsonify(response_object)
-
-#Для дебага (потом удалить)
-students_list = [
-    {
-        'id': 2134,
-        'name': "Alex Red",
-        'dates': [
-            datetime.strptime('09-04-2020', '%d-%m-%Y'),
-            datetime.strptime('10-04-2020', '%d-%m-%Y'),
-            datetime.strptime('11-04-2020', '%d-%m-%Y')
-        ]
-    },
-    {
-        'id': 2234,
-        'name': "Dominic Raider",
-        'dates': [
-
-        ]
-    },
-    {
-        'id': 2243,
-        'name': "John Lenon",
-        'dates': [
-
-        ],
-    }
-]
-
 
 # приходит json в таком виде: { 'course': 1 }
 @app.route("/groups", methods=['POST'])
-#@token_required
-def get_groups():
+@token_required
+def get_groups(user):
     post_data = request.get_json()
     groups = controller.get_groups(post_data['course'])
     schema = GroupSchema(many=True)
@@ -204,8 +93,8 @@ def get_groups():
 # TODO: Возвращать список студентов в соответствии запросу
 # приходит json в таком виде: { 'group_id': 1 }
 @app.route("/students", methods=['POST'])
-#@token_required
-def get_students():
+@token_required
+def get_students(user):
     post_data = request.get_json()
     #print(post_data.get('course').get('id'))
     # post_data.course.id - id курса
@@ -224,8 +113,8 @@ def get_students():
 
 
 @app.route("/subjects", methods=['GET'])
-#@token_required
-def get_subjects():
+@token_required
+def get_subjects(user):
     subjects = controller.get_subjects()
     schema = SubjectSchema(many=True)
     view_subjects = schema.dump(subjects)
@@ -236,8 +125,8 @@ def get_subjects():
 
 
 @app.route("/absenteeism/all", methods=['POST'])
-#@token_required
-def get_absenteeism_for_group():
+@token_required
+def get_absenteeism_for_group(user):
     post_data = request.get_json()
 
     subject_id = post_data['subjectId']
@@ -254,8 +143,8 @@ def get_absenteeism_for_group():
 
 # TODO: добавление пропуска (Если у каждого дня есть свой id, то следует отпралять этот ид)
 @app.route("/absenteeism/add", methods=['POST'])
-#@token_required
-def add_absenteeism():
+@token_required
+def add_absenteeism(user):
     post_data = request.get_json()
 
     subject_id = post_data['subjectId']
@@ -279,11 +168,11 @@ def add_absenteeism():
 
 # TODO: удаление пропуска
 @app.route("/absenteeism/remove", methods=['POST'])
-#@token_required
-def remove_absenteeism():
+@token_required
+def remove_absenteeism(user):
     post_data = request.get_json()
 
     absent_id = post_data['absentId']
     controller.delete_absent_date(absent_id)
 
-    return jsonify({ 'status': True})
+    return jsonify({'status': True})
