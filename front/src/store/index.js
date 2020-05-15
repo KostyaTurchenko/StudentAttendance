@@ -97,14 +97,6 @@ export default new Vuex.Store({
         },
         setDates(state, dates) {
             state.dates = dates;
-            /*for (let i = 1; i < 30; i++)
-                state.dates.push({
-                    date: "2020-04-"+i,
-                    group_id: 1,
-                    student_id: 4,
-                    subject_id: 1,
-                    id: 3,
-                })*/
         },
         addDay(state, day) {
             state.dates.push({
@@ -119,8 +111,6 @@ export default new Vuex.Store({
                 return date.id == absId
             });
             fined.student_id = -1;
-            /*let index = state.dates.indexOf(fined);
-            state.dates.splice(index, 1);*/
         },
 
         setTitle(state, data) {
@@ -180,7 +170,6 @@ export default new Vuex.Store({
                 if (res.data.status) {
                     context.commit('addAbsenteeism', res.data.date)
                 }
-                //context.commit('setStudents', res.data);
             })
             .catch(err => {
                 context.commit('setErrorMessage', err);

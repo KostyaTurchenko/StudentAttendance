@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = ''//'http://127.0.0.1:5000';
+const API_URL = 'http://127.0.0.1:5000';
 
 const token = localStorage.getItem('token')
 if (token) {
@@ -34,10 +34,6 @@ export function getAllAbsenteeism (query) {
 export function addAbsenteeism (query) {
     return axios.post(`${API_URL}/absenteeism/add`, query);
 }
-
-/*export function getCourses () {
-    return axios.get(`${API_URL}/courses`);
-}*/
 
 export function removeAbsenteeism (query) {
     return axios.post(`${API_URL}/absenteeism/remove`, query);

@@ -11,7 +11,10 @@
         </div>
         <hr />
         <div>
-            <b-table class="students" responsive :fields="tableFields" :items="tableItems" bordered v-if="students.length">
+            <b-table class="students" responsive :fields="tableFields" :items="tableItems" bordered v-if="students.length" :sticky-header="true">
+                <template v-slot:head(fullName)="">
+                    <div class="name-head text-nowrap">Имя</div>
+                </template>
                 <template v-slot:cell()="data">
                     <div @click="cellClick(data)" class="m-cell">{{ (data.field.key == 'fullName') ? data.value : (data.value.date_id) ? "x" : "" }}</div>
                 </template>
@@ -125,7 +128,7 @@ export default {
                 return res
             });
             return [
-                { key: 'fullName', label: 'Имя' },
+                { key: 'fullName', label: 'Имя', stickyColumn: true, },
                 ...dates,
             ]
         }
@@ -233,7 +236,7 @@ export default {
     padding: 0;
 }
 
-.m-cell {
+.students .m-cell {
     width: 100%;
     min-width: 65px;
     min-height: 40px;
@@ -242,4 +245,7 @@ export default {
     user-select: none;
 }
 
+.students .name-head {
+    min-width: 150px;
+}
 </style>
