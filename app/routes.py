@@ -59,7 +59,10 @@ def login():
     if request.method == 'POST':
         post_data = request.get_json()
         teacher = Teacher.query.filter_by(login=post_data.get('login')).first()
-        if teacher and bcrypt.check_password_hash(teacher.password, post_data.get('password')):
+        # if teacher and bcrypt.check_password_hash(teacher.password, post_data.get('password')):
+        print(post_data.get('password'))
+        print(teacher.password)
+        if teacher and bcrypt.checkpw(post_data.get('password').encode('utf-8'), teacher.password):
             token = jwt.encode({
                 'sub': teacher.login,
                 'iat': datetime.utcnow(),
@@ -74,6 +77,10 @@ def login():
         else:
             response_object = {'status': 'error'}
             return jsonify(response_object)
+
+# salt = bcrypt.gensalt()
+# hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+# user = User(username=username, email=email, password=hashed_password)
 
 
 # приходит json в таком виде: { 'course': 1 }

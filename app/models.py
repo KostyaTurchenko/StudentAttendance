@@ -7,6 +7,7 @@ class Student(db.Model):
     name = db.Column(db.String(32))
     surname = db.Column(db.String(32))
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
+    absents_dates = db.relationship('Absent', backref='student', lazy=True)
 
     def __repr__(self):
         return "<student {} {}>".format(self.name, self.surname)
@@ -23,6 +24,7 @@ class Teacher(UserMixin, db.Model):
 class Subject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
+    absents_dates = db.relationship('Absent', backref='subject', lazy=True)
 
     def __repr__(self):
         return "<subject {}>".format(self.name)
@@ -33,6 +35,7 @@ class Group(db.Model):
     number = db.Column(db.Float)
     course = db.Column(db.Integer)
     students = db.relationship('Student', backref='group', lazy=True)
+    absents_dates = db.relationship('Absent', backref='group', lazy=True)
 
     def __repr__(self):
         return "<course {} group {}>".format(self.course, self.number)
