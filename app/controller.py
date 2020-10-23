@@ -37,4 +37,8 @@ def add_student(first_name, last_name):
     new_stud = Student(firtsname=first_name, lastname=last_name)
     add_item(new_stud)
 
+def add_teacher(name, surname, login, password):
+    new_teacher = Teacher(name=name, surname=surname, login=login, password=password)
+    add_item(new_teacher)
+
 

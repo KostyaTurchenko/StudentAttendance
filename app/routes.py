@@ -9,6 +9,9 @@ import jwt
 from datetime import datetime
 
 
+# http://kirillchernyshov.pythonanywhere.com/
+
+
 def token_required(f):
     @wraps(f)
     def _verify(*args, **kwargs):
@@ -52,6 +55,27 @@ def catch_all(path):
 def static_dist(path):
     # тут пробрасываем статику
     return send_from_directory("/dist", path)
+
+
+@app.route('/registration', methods=['GET', 'POST'])
+def registration():
+    if request.method == 'POST':
+        post_data = request.get_json()
+        if not Teacher.query.filter_by(login=post_data.get('login')).first():
+            salt = bcrypt.gensalt()
+            password = post_data.get('password')
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+            controller.add_teacher(post_data.get('name'),
+                                   post_data.get('surname'),
+                                   post_data.get('login'),
+                                   hashed_password)
+            response_object = {'status': True}
+            return jsonify(response_object)
+        else:
+            response_object = {'status': 'already exist'}
+            return jsonify(response_object)
+
+
 
 
 @app.route("/login", methods=['GET', 'POST'])
